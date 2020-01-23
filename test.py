@@ -54,8 +54,7 @@ print('\n')
 
 # numpy的arange()测试
 x = np.arange(0, 10, 1)
-print('arange()生成的数组:')
-print(x)
+print('arange()生成的数组:', x)
 
 # numpy的linspace()测试
 f = np.linspace(0, 10, 10)
@@ -64,8 +63,7 @@ y2 = np.linspace(0, 10, 10, endpoint=False)
 print('linspace()生成的数组:')
 print(y)
 print(y2)
-print('错误的参数生成的数组:')
-print(f)
+print('错误的参数生成的数组:', f)
 print('\n')
 
 # for...in zip()测试
@@ -84,5 +82,45 @@ x = iris['data'][:, (2, 3)] # petal leng, petal width
 y = (iris['target'] == 2).astype(np.int)    # astype()变量类型转换
 print(x)
 
+# 原生数组linspace(),arange()与reshape()之后的数组比较
+linspace_arr = np.linspace(1, 5, 5)
+print('linspace()生成的数组:', linspace_arr)
+arange_arr = np.arange(1, 5, 1)
+print('arange()生成的数组:', arange_arr)
+reshape_arr = linspace_arr.reshape(-1, 1)
+print('reshape()之后的数组', reshape_arr)
 
+# shape与reshape()
+test_arr = np.array([1, 2, 3, 4, 5, 6, 7, 8])
+test_arr2 = np.array([[1, 2, 3, 4], [5, 6, 7, 8]])
 
+print('test_arr出来的数据:')
+print(test_arr.shape[0])     # 值是8，因为8个数据
+# print(test_arr.shape[1])     # IndexError: tuple index out of range
+
+print('test_arr2出来的数据:')
+print(test_arr2.shape[0])      # 值为2，最外层矩阵有2个元素
+print(test_arr2.shape[1])      # 值为4，内层矩阵有4个元素
+# print(test_arr2.shape[2])      # IndexError: tuple index out of range
+
+print('reshape出来的数据:')
+print(test_arr.reshape(2, 4))    # 改为二维数组 [[1 2 3 4][5 6 7 8]]
+print(test_arr.reshape(2, 2, 2))    # 改为三维数组 [ [[1 2][3 4]] [[5 6][7 8]] ]
+
+print('索引测试:',test_arr[:4])
+print('\n')
+
+# np.resize()测试
+t_arr = np.array([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]])
+c_arr = np.resize(t_arr, (3, 3))    # 有返回值，原数组未变
+print('重定义大小后的数组:',c_arr)
+print('原数组未变：', t_arr)
+
+n_arr = t_arr.resize((3, 3))
+print('直接修改了原数组:', t_arr)
+print(c_arr)
+
+# np.flatten()测试
+fla_arr = np.array([[1, 2, 3], [4, 5, 6]])
+fla_arr2 = fla_arr.flatten()
+print('多维压缩为一维:', fla_arr2)

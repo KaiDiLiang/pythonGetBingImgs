@@ -59,18 +59,18 @@ def Get_data(html_text):
     # 取得当前页及总页数的数值
     all_page = res_body.find('div', {'class': 'page'}).find('span').text
     # page_num = re.split(r'\s+', all_page)
-    page_num = all_page.stripped_strings
-    print(page_num)
-    print(type(page_num))
+    page_num = re.split(r'\s+', all_page)
+    page_num_arr = np.array(page_num)
+    print(page_num_arr)
 
     # 把拿到的图片url和copyright组合赋值给final[]
     final = []
     sun = {}
     for i, j in zip(img_data, copyright_data):
         sun = {'url': i, 'copyright': j}
-        print('\n')
         final.append(sun)
     final.append(page_num)
+    print(final[-1][0])
     return final
 
 def Write_data(data, name):
@@ -87,4 +87,4 @@ if __name__ == '__main__':
     result = Get_data(html)
     # print(result)
     # pandas_result = pd.DataFrame(result)
-    Write_data(result, 'getBingImgs.csv')
+    # Write_data(result, 'getBingImgs.csv')
