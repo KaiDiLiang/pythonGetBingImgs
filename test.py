@@ -1,5 +1,6 @@
 import numpy as np
 from sklearn import datasets    # sklearn模块封装了常用的递归、降维、分类、聚类等方法,并提供一些标准数据
+import pymysql
 
 # numpy的测试
 arr = np.arange(6).reshape(2, 3)    # arange()创建一个2*3数组
@@ -124,3 +125,22 @@ print(c_arr)
 fla_arr = np.array([[1, 2, 3], [4, 5, 6]])
 fla_arr2 = fla_arr.flatten()
 print('多维压缩为一维:', fla_arr2)
+
+# 数据库插入多条记录测试
+conn = pymysql.connect(
+    host = 'localhost',
+    port = 3306,
+    user = 'root',
+    password = 'root',
+    db = 'test_db'
+)
+with conn.cursor() as cursor:
+    password_list = ['abc','cdf','dfr','deg']
+    insert_sql_head = 'insert into test_table(password) values %s'
+    sql_content_list = []
+    for passwd in password_list:
+        sql_content_list.append('("%s")' % passwd)
+        sql_tail = ','.join(sql_content_list)
+        sql = insert_sql_head % sql_tail
+        cursor.execute(sql)
+    conn.commit()
