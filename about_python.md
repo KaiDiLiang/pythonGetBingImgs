@@ -29,6 +29,21 @@ x[y==0, 0], 第二个0是什么呢？y==1解决了行中哪些返回（那些为
 
 `python` 中行列的处理模式是不一样的，`行的取舍是通过true/false数组来实现的，列的取舍通过指定了哪一列`,以矩阵的角度能更好理解。
 
+```
+    data = np.array([
+        ['http://h1.ioliu.cn/bing/TajRepublic_ZH-CN1657162292_1920x1080.jpg',  
+        '泰姬陵 (© Michele Falzone/plainpicture)'
+        ],
+        ['http://h1.ioliu.cn/bing/Lunarnewyear2020_ZH-CN1554492287_1920x1080.jpg',  
+        '【今日春节】 (© bingdian/iStock/Getty Images Plus)'
+        ],
+        ['http://h1.ioliu.cn/bing/Lunarnewyeareve2020_ZH-CN1514309048_1920x1080.jpg',  
+        '【今日除夕】 (© Calvin Chan Wai Meng/Getty Images)'
+        ]
+    ])
+    print('所有行的第0列:', data[:,0])
+    print('第一行的所以列:', data[1,:])
+```
 
 
 #### 2.用for...in遍历2个数组
@@ -278,6 +293,53 @@ python `原生没有数组这个概念`，`[ ]`在python中称`list` 。二维�
 
 ```
 
+###### ①匹配某个标点前的所有非特殊字符，即a-z、A-Z、0-9、_、汉字
+`坑点：逗号、句号这些区分中、英文字符，即区分全角标点和半角标点`
+```
+    url = "海恩斯章克申附近克鲁瓦尼国家公园中冰川和山脉的鸟瞰图，加拿大育空 (© Robert Postma/plainpicture)"
+    t = re.match(r'\w+[^，]', url)
+    print(t)        # 海恩斯章克申附近克鲁瓦尼国家公园中冰川和山脉的鸟瞰图
+
+```
+
+###### ②匹配所有汉字
+```
+    url = "海恩斯章克申附近克鲁瓦尼国家公园中冰川和山脉的鸟瞰图，加拿大育空 (© Robert Postma/plainpicture)"
+    t = re.sub(r'[^\u4e00-\u9fa5]', '', name)
+    print(t)        # 海恩斯章克申附近克鲁瓦尼国家公园中冰川和山脉的鸟瞰图加拿大育空
+
+```
+
+###### ③for...in中的group()该搭配re.match()还是re.search()
+**深坑**： `re.match()在for...in中用group()`会出现'AttributeError: 'NoneType' object has no attribute 'group''报错。<br>
+
+**原因**：`re.match()只能从头开始匹配，不能从中间开始,for...in中使用它因没有匹配到元素，却调用了group（）方法造了报错`。<br>
+
+**解决方法**：`改用re.search()即可，re.search()是先扫描全部的代码块，再进行提取的。`
+```
+    file_name_arr = [
+        '海恩斯章克申附近克鲁瓦尼国家公园中冰川和山脉的鸟瞰图，加拿大育空 (© Robert Postma/plainpicture)',
+        '从国际空间站看纽约市 (© NASA Photo/Alamy)', '泰姬陵 (© Michele Falzone/plainpicture)', 
+        '【今日春节】 (© bingdian/iStock/Getty Images Plus)', 
+        '【今日除夕】 (© Calvin Chan Wai Meng/Getty Images)', 
+        '坦桑尼亚塞伦盖蒂国家公园的斑马和角马 (© Raffi Maghdessian/Cavan Images)',
+        '育空怀特霍斯附近的北极光，加拿大 (© Design Pics/Danita Delimont)',
+        '凯恩戈姆山脉中的欧亚红松鼠，苏格兰高地 (© Images from BarbAnna/Getty Images)', 
+        '阳光照耀下的火山岩山脊，冰岛埃亚菲亚德拉冰盖 (© Erlend Haarberg/Minden Pictures)', 
+        '野外探险家亚历克斯·彼得森在胡德山南侧快速滑翔，俄勒冈 (© Richard Hallman/DEEPOL by plainpicture)',
+        '白沙国家公园中的石膏沙丘，新墨西哥 (© Grant Kaye/Cavan Images)', 
+        '一只勃兰特鸬鹚在洛杉矶海岸石油钻塔下的一群太平洋鲭鱼中觅食，加利福尼亚 (© Alex Mustard/Minden Pictures)'
+    ]
+    files_name = []
+    for name in file_name_arr:
+        # 只取第一个逗号前的字符，去掉空格和全角，】,转化返回值为str以便后续连接文件名所需的字符
+        chinese_name = re.search(r'\w+[^，】\s+]', name).group(0)
+        t = chinese_name + '.jpg'
+        files_name.append(t)
+    print(files_name)
+
+```
+
 #### 8.python中的print()
 ```
     print(objects, sep='', end='\n', file=sys.stdout)
@@ -289,4 +351,106 @@ python `原生没有数组这个概念`，`[ ]`在python中称`list` 。二维�
     end: 设置结尾符号，默认是换行符
     file: 要写入的文件对象，设置该参数时不会输出内容，而是将内容写入指定文件中
 
+```
+
+#### 9.获取当前文件的绝对路径
+```
+    from pathlib import Path as P
+    import os
+
+    base_path = P.cwd()
+    base_path2 = os.path.abspath(os.path.dirname(__file__))
+```
+
+#### 10.拼接路径
+**深坑**：拼接不存在的文件夹时，必须先创建，否则会一直报错
+```
+    from pathlib import Path as P
+```
+错误的方法：
+```
+    name_arr = [
+        '第一张图.jpg',
+        '第二张图.jpg',
+        '第三张图.jpg'
+    ]
+    for j in name_arr:
+        base_path = P.cwd()
+        # imgs这个文件夹不存在，所以会一直报with open()这边的错误
+        img_path = base_path/'imgs'/j
+        with open(img_path, 'wb') as f:
+            f.write(res.content)
+
+```
+**正确的方法**：
+```
+    name_arr = [
+        '第一张图.jpg',
+        '第二张图.jpg',
+        '第三张图.jpg'
+    ]
+    for j in name_arr:
+        base_path = P.cwd()
+        # imgs这个文件夹不存在，所以得先判断它是否存在，不存在则先创建
+        img_path = base_path/'imgs'/j
+        with open(img_path, 'wb') as f:
+            f.write(res.content)
+
+```
+
+#### 11.从双层结构的json中提取数据
+###### 情况1：
+&nbsp;&nbsp;&nbsp;结构如：
+```
+    {
+    'images': [{
+        'startdate': '20200128',
+        "url":"/th?id=OHR.SemucChampey_ZH-CN1774527432_1920x1080.jpg&rf=LaDigue_1920x1080.jpg&pid=hp",
+        "urlbase":"/th?id=OHR.SemucChampey_ZH-CN1774527432","copyright":"Semuc Champey自然公园，危地马拉 (© Joel Sharpe/Getty Images)"
+        }]
+    }
+```
+&nbsp;&nbsp;&nbsp;提取数据的方法：
+```
+    header = {
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apnh,*/*;q=0.8,application/signed-exchange;v=b3',
+        'Accept-Encoding': 'gzip,deflate',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+        'Connection': 'keep-alive',
+        'User-Agent': 'Mozilla/5.0(windows NT 6.3; Win64; x64) AppleWebKit/537.36(KHTML, like Gecko) Chrome/77.0.3865.75 Safari/537.36'
+    }
+    json_url = 'http://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1'
+    timeout = random.choice(range(3, 9))
+    rep = requests.get(json_url, headers=header, timeout=timeout)
+    rep.encoding = 'utf-8'
+    # 解析json数据
+    url_json = json.loads(rep.text)
+    img_url = url_json['images'][0]['url']
+    print(img_url)
+
+```
+
+###### 情况2：
+&nbsp;&nbsp;&nbsp;结构如：
+```
+    <script type="application/ld+json" id="DATA_INFO">
+    {
+        "user": {
+            "isLogin": true,
+            "userInfo": {
+                "id": 123456,
+                "nickname": "happyJared",
+                "intro": "做好寫代碼這事"
+            }
+        }
+    }
+    </script>
+```
+
+&nbsp;&nbsp;&nbsp;提取数据的方法:
+```
+        json.loads(bs.find('script', {'type': 'application/ld+json'}).get_text()).get("user").get("userInfo").get("nickname")
+```
+```
+        json.loads(bs.find('script', {'id': 'DATA_INFO'}).get_text()).get("user").get("userInfo").get("nickname")
 ```
